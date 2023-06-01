@@ -128,8 +128,58 @@ app.post('/insertComment', (req, res) => {
 })
 
 app.post('/addAnime', (req, res) => {
-    db.query(`INSERT INTO anime VALUES `)
+    let query = `WITH insertAnime AS (
+                 INSERT INTO anime (uid, title, genre)
+                 VALUES (${req.body.uid}, '${req.body.title}', '${req.body.genre}')
+                     ),
+                     insertDetail AS (
+                 INSERT INTO animedetail
+                     (aired, episodes, members, popularity, ranked, score)
+                 VALUES ('${req.body.aired}', ${req.body.episodes}, ${req.body.members}, 0, 0, 0)
+                     ), 
+                     insertSynopsis AS(
+                     INSERT INTO animesynopsis(synopsis) 
+                         VALUES ('${req.body.synopsis}')
+                     )
+                 INSERT INTO animeurl( img_url, url_link)
+                 VALUES
+                     ( '${req.body.img_url}', '${req.body.url_link}');`
+    res.send(query)
+    db.query(query, (err, results) =>{
+        if(err){
+            console.log(err)
+            res.end('error')
+            return
+        }
+        res.send(results.rows)
+    })
+
 })
+
+app.post('/deleteAnime', (req, res) => {
+    let query = `WITH deleteAnime AS (
+                 DELETE FROM anime WHERE animeid = ${req.body.animeid}
+                     ),
+                     deleteDetail AS (
+                 DELETE FROM animedetail WHERE animeid = ${req.body.animeid} 
+                     ), 
+                     deleteSynopsis AS(
+                     DELETE FROM animesynopsis WHERE animeid = ${req.body.animeid}
+                     )
+                 DELETE FROM animeurl
+                 WHERE animeid = ${req.body.animeid};`
+    res.send(query)
+    db.query(query, (err, results) =>{
+        if(err){
+            console.log(err)
+            res.end('error')
+            return
+        }
+        res.send(results.rows)
+    })
+
+})
+
 app.listen(process.env.PORT || 5500, () => {
     console.log(`App Started on PORT ${process.env.PORT || 5500}`);
 });
