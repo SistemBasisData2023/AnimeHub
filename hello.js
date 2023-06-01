@@ -16,11 +16,13 @@ const { write } = require('fs');
 
 const db = new Client({
     //isi dengan konfigurasi database anda
-    user: 'postgres',
-    host: 'localhost',
+    user: 'laode.alif',
+    host: 'ep-wild-shadow-492151.ap-southeast-1.aws.neon.tech',
     database: 'animehub',
-    password: 'tes123',
-    port: 5432
+    password: 'Fm8Wq6ITNhkH',
+    port: 5432,
+    sslmode: 'require',
+    ssl: true
 });
 
 db.connect((err)=>{
@@ -30,6 +32,21 @@ db.connect((err)=>{
     }
     console.log('Database berhasil terkoneksi')
 })
+
+app.use(bodyParser.json());
+app.use(
+    bodyParser.urlencoded({
+        extended: true
+    })
+);
+const corsOptions = {
+    origin: '*',
+    Credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions))
+app.use(express.static(path.join(__dirname, 'public')));
+var temp;
 
 app.get('/getAllAnime', (req,res) =>{
     temp = req.session
@@ -46,7 +63,8 @@ app.get('/getAllAnime', (req,res) =>{
 
 app.get('/getDetailed', (req,res) =>{
     temp = req.session
-    const query = 'SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl;'
+    const query = 'SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl' +
+        ' NATURAL JOIN animesynopsis;'
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -70,10 +88,9 @@ app.get('/getSynopsis', (req,res) =>{
     })
 })
 
-app.get('/getTopAnime', (req,res) =>{
-    temp = req.session
-    const query = 'SELECT anime.animeid, title, ranked, img_url FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl' +
-        ' WHERE ranked > 0 ORDER BY ranked LIMIT 50;'
+app.post('/getTopAnime', (req,res) =>{
+    const query = `SELECT  ranked, anime.animeid, title,img_url FROM anime NATURAL JOIN animedetail NATURAL JOIN
+    animeurl WHERE ranked > (${req.body.page} * 50) ORDER BY ranked LIMIT 50;`
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -83,12 +100,12 @@ app.get('/getTopAnime', (req,res) =>{
         res.send(results.rows)
     })
 })
+
 
 app.post('/searchAnime', (req, res) =>{
-    temp = req.session;
-    temp.title = req.body.title;
-    const query = `SELECT animeid, title, img_url FROM anime NATURAL JOIN animedetail 
-    NATURAL JOIN animeurl WHERE title LIKE '$(temp.title)';`;
+    const query = `SELECT animeid, title, genre, img_url FROM anime NATURAL JOIN animedetail 
+    NATURAL JOIN animeurl WHERE title LIKE '${req.body.title}%';`;
+    console.log(query);
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -99,6 +116,20 @@ app.post('/searchAnime', (req, res) =>{
     })
 })
 
+app.post('/insertComment', (req, res) => {
+    db.query(`INSERT INTO comment VALUES ('${req.body.animeid}', '${req.body.uid}', '${req.body.comment}');`, (err, results) =>{
+        if(err){
+            console.log(err)
+            res.end('error')
+            return
+        }
+        res.send('Comment successfully added')
+    })
+})
+
+app.post('/addAnime', (req, res) => {
+    db.query(`INSERT INTO anime VALUES `)
+})
 app.listen(process.env.PORT || 5500, () => {
     console.log(`App Started on PORT ${process.env.PORT || 5500}`);
 });
