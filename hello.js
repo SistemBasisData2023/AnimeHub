@@ -15,7 +15,6 @@ const { isWindows } = require('nodemon/lib/utils');
 const { write } = require('fs');
 
 const db = new Client({
-    //isi dengan konfigurasi database anda
     user: 'laode.alif',
     host: 'ep-wild-shadow-492151.ap-southeast-1.aws.neon.tech',
     database: 'animehub',
@@ -104,8 +103,7 @@ app.post('/getTopAnime', (req,res) =>{
 
 app.post('/searchAnime', (req, res) =>{
     const query = `SELECT animeid, title, genre, img_url FROM anime NATURAL JOIN animedetail 
-    NATURAL JOIN animeurl WHERE title LIKE '${req.body.title}%';`;
-    console.log(query);
+    NATURAL JOIN animeurl WHERE title ILIKE '${req.body.title}%';`;
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -144,16 +142,14 @@ app.post('/addAnime', (req, res) => {
                  INSERT INTO animeurl( img_url, url_link)
                  VALUES
                      ( '${req.body.img_url}', '${req.body.url_link}');`
-    res.send(query)
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
             res.end('error')
             return
         }
-        res.send(results.rows)
+        res.send('New anime added')
     })
-
 })
 
 app.post('/deleteAnime', (req, res) => {
@@ -168,16 +164,52 @@ app.post('/deleteAnime', (req, res) => {
                      )
                  DELETE FROM animeurl
                  WHERE animeid = ${req.body.animeid};`
-    res.send(query)
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
             res.end('error')
             return
         }
-        res.send(results.rows)
+        res.send('Anime deleted')
+    })
+})
+
+app.post('/addReview', (req, res) => {
+    let animeid = req.body.animeid
+    let score = 0
+    let member = 0
+    let query = `INSERT INTO animereview values (${req.body.score}, '${req.body.review}', ` + animeid + `);`
+    console.log(query)
+    db.query(query, (err, results) =>{
+        if(err){
+            console.log(err)
+            res.end('error')
+            return
+        }
+    })
+    query = `SELECT * FROM animedetail WHERE animeid = ` + animeid
+    db.query(query, (err, results) => {
+        if(err){
+            console.log(err)
+            res.end('error')
+            return
+        }
+        score = (results.rows[0].score * results.rows[0].members + req.body.score) / (results.rows[0].members + 1)
+        member = results.rows[0].members + 1
+        query = `UPDATE animedetail SET 
+                       score = ` + score + `, members = ` + member +
+            ` WHERE animeid = ` + animeid + ` ;`
+        db.query(query, (err, results) => {
+            if(err){
+                console.log(err)
+                res.end('error')
+                return
+            }
+        })
+        console.log(query)
     })
 
+    res.send('Review added')
 })
 
 app.listen(process.env.PORT || 5500, () => {
