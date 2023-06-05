@@ -62,8 +62,10 @@ app.get('/getAllAnime', (req,res) =>{
 
 app.get('/getDetailed', (req,res) =>{
     temp = req.session
-    const query = 'SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl' +
-        ' NATURAL JOIN animesynopsis;'
+    const query = `SELECT *, ROW_NUMBER () OVER (
+            ORDER BY score DESC
+            ) AS rank FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
+         NATURAL JOIN animesynopsis;`
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -88,8 +90,14 @@ app.get('/getSynopsis', (req,res) =>{
 })
 
 app.post('/getTopAnime', (req,res) =>{
-    const query = `SELECT  ranked, anime.animeid, title,img_url FROM anime NATURAL JOIN animedetail NATURAL JOIN
-    animeurl WHERE ranked > (${req.body.page} * 50) ORDER BY ranked LIMIT 50;`
+    const query = `SELECT  ROW_NUMBER () OVER (
+            ORDER BY score DESC
+            ) AS rank, anime.animeid, title,img_url, score
+                   FROM anime NATURAL JOIN animedetail NATURAL JOIN
+                        animeurl WHERE members >= 10
+                   OFFSET (${req.body.page} * 50) LIMIT 50;
+    `
+    console.log(query)
     db.query(query, (err, results) =>{
         if(err){
             console.log(err)
@@ -98,6 +106,7 @@ app.post('/getTopAnime', (req,res) =>{
         }
         res.send(results.rows)
     })
+
 })
 
 
