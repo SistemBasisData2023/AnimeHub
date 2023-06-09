@@ -31,6 +31,7 @@ const getDetailed = async (req, res) => {
 };
 
 const getTopAnime = async (req, res) => {
+    console.log(req.body.page);
     try{
         const query = `SELECT  ROW_NUMBER () OVER (
             ORDER BY score DESC) 
@@ -49,10 +50,11 @@ const getTopAnime = async (req, res) => {
 
 const searchAnime = async (req, res) => {
     try {
-        const query = `SELECT animeid, title, genre, img_url
+        const query = `SELECT *
                        FROM anime
                                 NATURAL JOIN animedetail
                                 NATURAL JOIN animeurl
+                                NATURAL JOIN animesynopsis
                        WHERE title ILIKE '${req.body.title}%';`;
         const result = await db.query(query);
         const list = result.rows;
@@ -62,6 +64,16 @@ const searchAnime = async (req, res) => {
     }
 };
 
+const getAnimeById = async (req, res) => {
+    try{
+        const query = `SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
+         NATURAL JOIN animesynopsis WHERE animeid = ${req.body.animeid};`;
+        const result = await db.query(query);
+        res.status(200).json(result.rows)
+    }catch (e) {
+        res.status(500).json({e})
+    }
+}
 const addReview = async (req, res) => {
     let score;
     let member;
@@ -134,4 +146,30 @@ const deleteAnime = async (req, res) => {
 
     }
 }
-module.exports = {getAllAnime, getDetailed, getTopAnime, searchAnime, addReview, addAnime, deleteAnime};
+
+const getPaginatedAnime = async (req, res) => {
+    const limit = 20; // number of records per page
+    let offset = 0; // start from the first record
+
+    if (req.body.page) {
+        offset = req.body.page * limit; // calculate the offset
+    }
+
+    const query = `SELECT *, ROW_NUMBER () OVER (
+            ORDER BY score DESC
+            ) AS rank FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
+         NATURAL JOIN animesynopsis
+         OFFSET ${offset} LIMIT ${limit};`
+
+    try {
+        const result = await db.query(query);
+        const list = result.rows;
+        res.status(200).json(list);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({err: 'Failed to get anime list'});
+    }
+};
+
+module.exports = {getAllAnime, getDetailed, getTopAnime, searchAnime, addReview, addAnime,
+    deleteAnime, getAnimeById, getPaginatedAnime};
