@@ -75,9 +75,9 @@ const getAnimeById = async (req, res) => {
     }
 }
 const addReview = async (req, res) => {
-    let score;
     let member;
     let animeid = req.body.animeid
+    const newScore = parseFloat(req.body.score)
     try {
         let query = `INSERT INTO animereview values (${req.body.score}, '${req.body.review}', ` + animeid +
             `, '${req.session.username}');`;
@@ -88,7 +88,13 @@ const addReview = async (req, res) => {
                  WHERE animeid = ` + animeid;
         results = await db.query(query);
         console.log(query)
-        score = (results.rows[0].score * results.rows[0].members + req.body.score) / (results.rows[0].members + 1)
+        let currentScore = results.rows[0].score
+        let currentMember = results.rows[0].members
+        console.log('Current member: ' + currentMember)
+        console.log('Current score: ' + currentScore)
+        console.log('New Score: ' + newScore)
+        const score = ((currentScore * currentMember) + newScore) / (currentMember + 1)
+        console.log('score ' + score)
         member = results.rows[0].members + 1
         query = `UPDATE animedetail
                  SET score = ` + score + `, members = ` + member +

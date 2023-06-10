@@ -7,12 +7,6 @@ const path = require('path')
 
 //initialize the app as an express app
 const app = express();
-const router = express.Router();
-const { Client } = require('pg');
-const bcrypt = require('bcrypt');
-const { hash } = require('bcrypt');
-const { isWindows } = require('nodemon/lib/utils');
-const { write } = require('fs');
 
 const { connectDB } = require('./database/connectDB')
 const animeRoutes = require('./routes/animeRoutes')
