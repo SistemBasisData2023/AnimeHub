@@ -1,6 +1,8 @@
 const {db} = require("../database/connectDB");
 const {end, send} = require("express/lib/response");
 const bcrypt = require("bcrypt");
+const session = require('express-session');
+
 
 const login = async (req, res) =>{
     const email = req.body.email;
@@ -9,7 +11,17 @@ const login = async (req, res) =>{
     try{
         const result = await db.query(query);
         const list = result.rows;
-        res.send('Login successful');
+        if (result.rows.length > 0) {
+            bcrypt.compare(password, result.rows[0].password, (err, compareResult) => {
+                if (compareResult === true) {
+                    req.session.email = email;
+                    req.session.username = result.rows[0].username;
+                    res.send("Login Successful");
+                } else {
+                    res.send("Login Failed");
+                }
+            });
+        }
     }catch(err){
         console.log(err)
         res.status(500).json({err: 'Login failed'})
@@ -62,4 +74,31 @@ const deleteUser = async(req, res) => {
     }
 }
 
-module.exports = {login, logout, deleteUser, register, showUser}
+const addToFavorite = async (req, res) => {
+    const query = `INSERT INTO userfavorite VALUES (${req.body.animeid}, '${req.session.username}');`
+    console.log(query)
+    try {
+        const result = await db.query(query);
+        const list = result.rows;
+        res.status(200).json(list);
+    }catch (e) {
+
+    }
+}
+
+const getFavorite = async (req, res) => {
+    const query = `SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
+                                       NATURAL JOIN animesynopsis NATURAL JOIN animereview 
+         WHERE username = '${req.session.username}';`
+    console.log(query)
+    try {
+        const result = await db.query(query);
+        const list = result.rows;
+        res.status(200).json(list);
+    }catch (e) {
+
+    }
+}
+
+
+module.exports = {login, logout, deleteUser, register, showUser, addToFavorite, getFavorite}

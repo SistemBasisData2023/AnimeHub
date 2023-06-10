@@ -19,6 +19,13 @@ const animeRoutes = require('./routes/animeRoutes')
 const accountRoutes = require('./routes/accountRoutes')
 connectDB();
 
+app.use(
+    session({
+        secret: 'ini contoh secret',
+        saveUninitialized: false,
+        resave: false
+    })
+);
 app.use(bodyParser.json());
 app.use(
     bodyParser.urlencoded({
@@ -30,6 +37,9 @@ const corsOptions = {
     Credentials: true,
     optionsSuccessStatus: 200
 };
+
+var temp;
+
 app.use(cors(corsOptions))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/", accountRoutes)

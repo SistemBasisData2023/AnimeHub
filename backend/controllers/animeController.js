@@ -19,7 +19,7 @@ const getDetailed = async (req, res) => {
     try{
         const query = `SELECT *, ROW_NUMBER () OVER (
             ORDER BY score DESC
-            ) AS rank FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
+            ) AS rank,  ROUND(score::numeric, 2) AS roundedScore FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl
          NATURAL JOIN animesynopsis;`
         const result = await db.query(query);
         const list = result.rows;
@@ -79,7 +79,8 @@ const addReview = async (req, res) => {
     let member;
     let animeid = req.body.animeid
     try {
-        let query = `INSERT INTO animereview values (${req.body.score}, '${req.body.review}', ` + animeid + `);`;
+        let query = `INSERT INTO animereview values (${req.body.score}, '${req.body.review}', ` + animeid +
+            `, '${req.session.username}');`;
         console.log(query)
         let results = await db.query(query);
         query = `SELECT *
@@ -100,6 +101,18 @@ const addReview = async (req, res) => {
     }
 }
 
+const getReview = async (req, res) => {
+    const query = `SELECT * FROM animereview NATURAL JOIN anime WHERE animeid = ${req.body.animeid};`
+
+    try {
+        const result = await db.query(query);
+        const list = result.rows;
+        res.status(200).json(list);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({err: 'Review not found'});
+    }
+}
 const addAnime = async (req, res) => {
     try{
         const query = `WITH insertAnime AS (
@@ -172,4 +185,4 @@ const getPaginatedAnime = async (req, res) => {
 };
 
 module.exports = {getAllAnime, getDetailed, getTopAnime, searchAnime, addReview, addAnime,
-    deleteAnime, getAnimeById, getPaginatedAnime};
+    deleteAnime, getAnimeById, getPaginatedAnime, getReview};
