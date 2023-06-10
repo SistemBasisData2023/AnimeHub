@@ -108,10 +108,11 @@ const addReview = async (req, res) => {
 }
 
 const getReview = async (req, res) => {
-    const query = `SELECT * FROM animereview NATURAL JOIN anime WHERE animeid = ${req.body.animeid};`
+    const query = `SELECT * FROM animereview NATURAL JOIN anime WHERE animeid = $1;`
+    const values = [req.params.animeid];
 
     try {
-        const result = await db.query(query);
+        const result = await db.query(query, values);
         const list = result.rows;
         res.status(200).json(list);
     } catch (err) {
@@ -119,6 +120,7 @@ const getReview = async (req, res) => {
         res.status(500).json({err: 'Review not found'});
     }
 }
+
 const addAnime = async (req, res) => {
     try{
         const query = `WITH insertAnime AS (

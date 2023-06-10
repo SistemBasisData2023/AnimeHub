@@ -12,5 +12,5 @@ router.post("/addAnime", animeController.addAnime);
 router.post("/deleteAnime", animeController.deleteAnime);
 router.post("/getAnimeById", animeController.getAnimeById);
 router.post("/getPaginatedAnime", animeController.getPaginatedAnime);
-router.get("/getReviewById", animeController.getReview);
+router.get("/getReviewById/:animeid", animeController.getReview);
 module.exports = router;
