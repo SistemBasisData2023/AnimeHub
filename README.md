@@ -40,4 +40,5 @@ Group AB28 :
 - Rakha Argya Zahran
 - Laode Alif Ma'sum S
 - Muhammad Farrel M
+
 AnimeHub is the final project for the 4th semester of the Database Systems + Lab in Undergraduate of Computer Engineering study program, Department of Electrical Engineering, Faculty of Engineering, Universitas Indonesia.
