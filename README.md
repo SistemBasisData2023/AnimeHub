@@ -27,7 +27,7 @@ Progress Report 2 :
 https://youtu.be/n1BalL_nbqw
 
 ## ER Diagram
-![ER Diagram drawio](https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/ab54977e-80d2-4a44-b834-049a3bc9c367)
+![ER Diagram drawio (1)](https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/a67b0621-5dec-48c0-9ad3-75241ee48f1d)
 
 ## UML
 ![UML](https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/aee883d9-9f0d-4e14-999b-c3f4e7820a1b)
