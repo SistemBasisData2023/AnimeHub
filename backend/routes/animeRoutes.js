@@ -22,5 +22,5 @@ router.post("/getPaginatedAnime", animeController.getPaginatedAnime);
 //get review by animeid
 router.get("/getReviewById/:animeid", animeController.getReview);
 //get anime by genre
-router.get("/getByGenre", animeController.getByGenre);
+router.post("/getByGenre", animeController.getByGenre);
 module.exports = router;

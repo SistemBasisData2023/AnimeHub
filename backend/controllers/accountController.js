@@ -46,15 +46,14 @@ const register = async (req, res) => {
   const hash = bcrypt.hashSync(password, 10);
   //query to update users table
   const query = `INSERT INTO users(email, username, password) VALUES ('${email}', '${username}', '${hash}');`;
-  try {
-    //query succeed
-    await db.query(query);
-    res.send("Register success");
-  } catch (err) {
-    //query failed
-    console.log(err);
-    res.status(500).json({ err: "Register failed" });
-  }
+  db.query(query, (err, results) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Registration failed' });
+    } else {
+      res.status(200).json({ success: true, message: 'Registration successful' });
+    }
+  });
 };
 
 //user logout
