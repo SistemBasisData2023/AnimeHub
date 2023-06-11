@@ -85,7 +85,6 @@ const deleteUser = async (req, res) => {
   const { id } = req.body;
   //query to delete users from table by user id
   const query = `DELETE FROM users WHERE id_user = ${id};`;
-  console.log(query);
   try {
     await db.query(query);
     res.send("Account delete success");
@@ -114,7 +113,6 @@ const removeFromFavorite = async (req, res) => {
     const { username } = req.session;
     //query to delete from userfavorite table by animeid and current username
     const query = `DELETE FROM userfavorite WHERE animeid = ${animeid} AND username = '${username}';`;
-    console.log(query);
     try {
       await db.query(query);
       res.status(200).json({ success: true });
@@ -128,7 +126,6 @@ const getFavorite = async (req, res) => {
   const { username } = req.session;
   //query to get details of user's favorite anime
   const query = `SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl NATURAL JOIN animesynopsis NATURAL JOIN userfavorite WHERE username = '${username}';`;
-  console.log(query);
   try {
     const result = await db.query(query);
     const list = result.rows;

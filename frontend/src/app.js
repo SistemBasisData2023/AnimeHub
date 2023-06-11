@@ -24,7 +24,7 @@ function MainApp({ isFavoritesPage, handleLogout }) {
   const [favoriteAnime, setFavoriteAnime] = useState([]);
 
 
-  const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy']; // List of genres you want to include
+  const genres = ['Action', 'Slice of Life', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Romance', 'Sports']; // List of genres you want to include
 
   useEffect(() => {
     const fetchAnimeData = async () => {

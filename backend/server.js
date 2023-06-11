@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config()
 
 const { connectDB } = require('./database/connectDB');
 const animeRoutes = require('./routes/animeRoutes');

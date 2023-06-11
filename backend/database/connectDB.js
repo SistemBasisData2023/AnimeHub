@@ -1,11 +1,11 @@
 const {Client} = require("pg");
 
 const db = new Client({
-    user: 'laode.alif',
-    host: 'ep-wild-shadow-492151.ap-southeast-1.aws.neon.tech',
-    database: 'animehub',
-    password: 'Fm8Wq6ITNhkH',
-    port: 5432,
+    user: process.env.PGUSER,
+    host: process.env.PGHOST,
+    database: process.env.PGDB,
+    password: process.env.PGPASS,
+    port: process.env.PGPORT,
     sslmode: 'require',
     ssl: true
 });
