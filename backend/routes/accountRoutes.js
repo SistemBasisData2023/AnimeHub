@@ -9,4 +9,6 @@ router.get("/showUser", accountController.showUser);
 router.delete("/deleteUser", accountController.deleteUser);
 router.post("/addFavorite", accountController.addToFavorite);
 router.get("/getFavorite", accountController.getFavorite);
+router.get("/check-session", accountController.checkSession);
+router.post("/removeFromFavorite", accountController.removeFromFavorite);
 module.exports = router;

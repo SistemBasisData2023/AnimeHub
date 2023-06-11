@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaBars, FaSearch, FaUserCircle } from 'react-icons/fa';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Container,
   Logo,
@@ -13,7 +14,7 @@ import {
   AvatarMenu
 } from './styles';
 
-function Navbar({ onSearch }) {
+function Navbar({ onSearch, onLogout }) {
   const menuRef = useRef();
   const profileMenuRef = useRef();
   const searchRef = useRef();
@@ -22,8 +23,9 @@ function Navbar({ onSearch }) {
   const [showSearch, setShowSearch] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [opacity, setOpacity] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  
   useEffect(() => {
     window.addEventListener('mousedown', handleClick);
     window.addEventListener('scroll', handleScroll);
@@ -82,6 +84,11 @@ function Navbar({ onSearch }) {
     onSearch(searchValue);
   }
 
+  function handleLogout() {
+    onLogout(); // Call the logout function from the parent component
+    navigate('/login'); // Redirect to the login page
+  }
+
   return (
     <Container opacity={opacity} className="navbar bg-base-100">
       <Main>
@@ -103,8 +110,8 @@ function Navbar({ onSearch }) {
           <span className="text-red-500 text-2xl font-bold ml-4">AnimeHub</span>
         </Logo>
         <VerticalMenu className="text-white">
-          <a href="/">Home</a>
-          <a href="/">My List</a>
+          <Link to="/">Home</Link>
+          {location.pathname !== '/favorites' && <Link to="/favorites">Favorites</Link>}
         </VerticalMenu>
       </Main>
       <RightSide>
@@ -115,7 +122,7 @@ function Navbar({ onSearch }) {
             </button>
           </div>
         )}
-  {showSearch && (
+        {showSearch && (
           <form onSubmit={handleSearchSubmit}>
             <SearchInput
               value={searchValue}
@@ -138,16 +145,7 @@ function Navbar({ onSearch }) {
             {showProfileMenu && (
               <AvatarMenu className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
                 <li>
-                  <a href="/" className="justify-between">
-                    Profile
-                    <span className="badge">New</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="/">Settings</a>
-                </li>
-                <li>
-                  <a href="/">Logout</a>
+                  <button onClick={handleLogout}>Logout</button>
                 </li>
               </AvatarMenu>
             )}

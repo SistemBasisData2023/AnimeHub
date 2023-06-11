@@ -14,12 +14,21 @@ function ReviewModal({ anime, onClose }) {
     fetchReviews();
   }, [anime.animeid]);
 
+  const addReview = async (animeid, score, review) => {
+    try {
+      const response = await apiInstance.addReview(animeid, score, review);
+      if (response && response.success) {
+        fetchReviews();
+      }
+    } catch (error) {
+      console.error('Error adding review:', error);
+    }
+  };
+
   const handleSubmit = () => {
-    apiInstance.addReview(anime.animeid, score, reviewText).then(() => {
-      setReviewText('');
-      setScore(0);
-      fetchReviews();
-    });
+    addReview(anime.animeid, score, reviewText);
+    setReviewText('');
+    setScore(0);
   };
 
   return (

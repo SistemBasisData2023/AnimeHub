@@ -75,37 +75,40 @@ const getAnimeById = async (req, res) => {
     }
 }
 const addReview = async (req, res) => {
-    let member;
-    let animeid = req.body.animeid
-    const newScore = parseFloat(req.body.score)
-    try {
-        let query = `INSERT INTO animereview values (${req.body.score}, '${req.body.review}', ` + animeid +
-            `, '${req.session.username}');`;
-        console.log(query)
-        let results = await db.query(query);
-        query = `SELECT *
-                 FROM animedetail
-                 WHERE animeid = ` + animeid;
-        results = await db.query(query);
-        console.log(query)
-        let currentScore = results.rows[0].score
-        let currentMember = results.rows[0].members
-        console.log('Current member: ' + currentMember)
-        console.log('Current score: ' + currentScore)
-        console.log('New Score: ' + newScore)
-        const score = ((currentScore * currentMember) + newScore) / (currentMember + 1)
-        console.log('score ' + score)
-        member = results.rows[0].members + 1
-        query = `UPDATE animedetail
-                 SET score = ` + score + `, members = ` + member +
-            ` WHERE animeid = ` + animeid + ` ;`
-        console.log(query)
-        results = await db.query(query);
-        res.send('Review added');
-    } catch (e) {
-        res.status(500).json({e: 'Anime not found'})
+    if (!req.session.username) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
     }
-}
+  
+    const animeid = req.body.animeid;
+    const newScore = parseFloat(req.body.score);
+  
+    try {
+      // Check if the user has already reviewed the anime
+      const reviewQuery = `SELECT * FROM animereview WHERE animeid = $1 AND username = $2`;
+      const existingReview = await db.query(reviewQuery, [animeid, req.session.username]);
+      if (existingReview.rows.length > 0) {
+        res.status(400).json({ error: 'You have already submitted a review for this anime' });
+        return;
+      }
+  
+      // Insert the new review
+      const insertQuery = `INSERT INTO animereview (score, review, animeid, username) VALUES ($1, $2, $3, $4)`;
+      await db.query(insertQuery, [req.body.score, req.body.review, animeid, req.session.username]);
+  
+      // Update the anime's score and member count
+      const updateQuery = `UPDATE animedetail SET score = ((score * members) + $1) / (members + 1), members = members + 1 WHERE animeid = $2`;
+      await db.query(updateQuery, [newScore, animeid]);
+  
+      res.status(200).json({ success: true, message: 'Review added' });
+    } catch (error) {
+      console.error('Error adding review:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
+  
+  
 
 const getReview = async (req, res) => {
     const query = `SELECT * FROM animereview NATURAL JOIN anime WHERE animeid = $1;`

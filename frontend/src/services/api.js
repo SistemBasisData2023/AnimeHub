@@ -47,13 +47,21 @@ class Api {
 
   async addReview(animeid, score, review) {
     try {
-      const response = await axios.post(`${this.baseUrl}/addReview`, { animeid, score, review });
+      const response = await axios.post(`${this.baseUrl}/addReview`, {
+        animeid,
+        score,
+        review,
+      }, {
+        withCredentials: true, // Send cookies with the request
+      });
       return response.data;
     } catch (error) {
       console.error('Error adding review:', error);
       return null;
     }
   }
+  
+
 
   async addAnime(anime) {
     try {
@@ -94,7 +102,6 @@ class Api {
       return [];
     }
   }
-  
 
   async getPaginatedAnime(page = 0) {
     try {
@@ -105,6 +112,37 @@ class Api {
       return [];
     }
   }
+  async removeFromFavorite(animeid) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/removeFromFavorite`, { animeid }, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      throw error;
+    }
+  }
+  
+  async addToFavorite(animeid) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/addFavorite`, { animeid }, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+      return null;
+    }
+  }
+  
+  async getFavorite() {
+    try {
+      const response = await axios.get(`${this.baseUrl}/getFavorite`, { withCredentials: true });
+      return response.data;
+    } catch (error) {
+      console.error('Error retrieving favorite anime:', error);
+      return [];
+    }
+  }
+  
+  
 }
 
 const apiInstance = new Api();
