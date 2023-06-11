@@ -27,9 +27,13 @@ Progress Report 2 :
 https://youtu.be/n1BalL_nbqw
 
 ## ER Diagram
+![ER Diagram drawio](https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/ab54977e-80d2-4a44-b834-049a3bc9c367)
 
 ## UML
+![UML](https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/aee883d9-9f0d-4e14-999b-c3f4e7820a1b)
+
 ## Flowchart
+<img width="5920" alt="FlowChartSBD" src="https://github.com/SistemBasisData2023/AnimeHub/assets/87571919/472c90fe-39de-4831-8183-cde2f8969626">
 
 ## Contributors
 Group AB28 : 
