@@ -112,10 +112,10 @@ class Api {
       return [];
     }
   }
-  async removeFromFavorite(animeid) {
+  async removeFromFavorite(animeid, callback) {
     try {
       const response = await axios.post(`${this.baseUrl}/removeFromFavorite`, { animeid }, { withCredentials: true });
-      return response.data;
+      callback(response.data); // Invoke the callback with the updated data
     } catch (error) {
       console.error('Error removing from favorites:', error);
       throw error;
@@ -142,7 +142,16 @@ class Api {
     }
   }
   
-  
+  async getByGenre(genre, page) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/getByGenre`, { genre, page });
+      return response.data;
+    } catch (error) {
+      console.error('Error retrieving anime by genre:', error);
+      return [];
+    }
+  }
+
 }
 
 const apiInstance = new Api();

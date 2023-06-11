@@ -1,21 +1,27 @@
 const { db } = require("../database/connectDB");
 const bcrypt = require("bcrypt");
 
+//user login
 const login = async (req, res) => {
     const { email, password } = req.body;
+    //query to find email that match
     const query = `SELECT * FROM users WHERE email='${email}'`;
     try {
       const result = await db.query(query);
       const user = result.rows[0];
       if (user) {
         try {
+          //if email matched, compare encrypted password
           const compareResult = await bcrypt.compare(password, user.password);
+          //if email and password matched
           if (compareResult === true) {
             req.session.email = user.email;
             req.session.username = user.username;
             console.log('Received session identifier:', req.session.username); // Log the received session identifier
             res.status(200).json({ success: true, message: "Login Successful" });
-          } else {
+          }
+          //if password not matched
+          else {
             res.status(401).json({ success: false, message: "Invalid credentials" });
           }
         } catch (error) {
@@ -32,22 +38,27 @@ const login = async (req, res) => {
   };
   
   
-
+//user register
 const register = async (req, res) => {
+  //retreive email, username, and password
   const { email, username, password } = req.body;
+  //password encryption
   const hash = bcrypt.hashSync(password, 10);
+  //query to update users table
   const query = `INSERT INTO users(email, username, password) VALUES ('${email}', '${username}', '${hash}');`;
-  console.log(query);
-  try {
-    await db.query(query);
-    res.send("Register success");
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err: "Register failed" });
-  }
+  db.query(query, (err, results) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ success: false, message: 'Registration failed' });
+    } else {
+      res.status(200).json({ success: true, message: 'Registration successful' });
+    }
+  });
 };
 
+//user logout
 const logout = async (req, res) => {
+  //destroy session
   req.session.destroy((err) => {
     if (err) {
       res.end("error");
@@ -56,7 +67,9 @@ const logout = async (req, res) => {
   });
 };
 
+//show all user table
 const showUser = async (req, res) => {
+  //query to show all users table's data
   const query = `SELECT * FROM users;`;
   try {
     const result = await db.query(query);
@@ -67,8 +80,10 @@ const showUser = async (req, res) => {
   }
 };
 
+//delete registered user
 const deleteUser = async (req, res) => {
   const { id } = req.body;
+  //query to delete users from table by user id
   const query = `DELETE FROM users WHERE id_user = ${id};`;
   console.log(query);
   try {
@@ -79,11 +94,12 @@ const deleteUser = async (req, res) => {
   }
 };
 
+//add user's favorite anime
 const addToFavorite = async (req, res) => {
   const { animeid } = req.body;
   const { username } = req.session;
+  //query to insert selected anime to userfavorite table by animeid and current username
   const query = `INSERT INTO userfavorite VALUES (${animeid}, '${username}');`;
-  console.log(query);
   try {
     await db.query(query);
     res.status(200).json({ success: true });
@@ -92,9 +108,11 @@ const addToFavorite = async (req, res) => {
   }
 };
 
+//remove user's favorite anime
 const removeFromFavorite = async (req, res) => {
     const { animeid } = req.body;
     const { username } = req.session;
+    //query to delete from userfavorite table by animeid and current username
     const query = `DELETE FROM userfavorite WHERE animeid = ${animeid} AND username = '${username}';`;
     console.log(query);
     try {
@@ -105,8 +123,10 @@ const removeFromFavorite = async (req, res) => {
     }
   };
 
+//get a list of user's favorite anime
 const getFavorite = async (req, res) => {
   const { username } = req.session;
+  //query to get details of user's favorite anime
   const query = `SELECT * FROM anime NATURAL JOIN animedetail NATURAL JOIN animeurl NATURAL JOIN animesynopsis NATURAL JOIN userfavorite WHERE username = '${username}';`;
   console.log(query);
   try {
@@ -118,6 +138,7 @@ const getFavorite = async (req, res) => {
   }
 };
 
+//check current session
 const checkSession = (req, res) => {
     if (req.session.email && req.session.username) {
       res.json({ loggedIn: true });
